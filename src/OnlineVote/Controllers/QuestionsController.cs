@@ -7,9 +7,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineVote.Data;
 using OnlineVote.Models;
+using OnlineVote.DTO;
+using AutoMapper;
 
 namespace OnlineVote.Controllers
 {
+    public class MapperConfig
+    {
+        public static Mapper InitializeAutomapper()
+        {
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<QuestionDTO, Question>());
+            var mapper = new Mapper(config);
+            return mapper;
+        }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionsController : ControllerBase
@@ -76,12 +88,15 @@ namespace OnlineVote.Controllers
         // POST: api/Questions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Question>> PostQuestion(Question question)
+        public async Task<ActionResult<QuestionDTO>> PostQuestion(QuestionDTO questionDto)
         {
+            var mapper = MapperConfig.InitializeAutomapper();
+            Question question = mapper.Map<Question>(questionDto);
+
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQuestion", new { id = question.Id }, question);
+            return  CreatedAtAction("GetQuestion", new { id = question.Id }, question);
         }
 
         // DELETE: api/Questions/5
