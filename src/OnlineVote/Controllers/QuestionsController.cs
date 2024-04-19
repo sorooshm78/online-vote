@@ -88,14 +88,16 @@ namespace OnlineVote.Controllers
         // POST: api/Questions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<QuestionDTO>> PostQuestion(QuestionDTO questionDto)
+        public async Task<ActionResult<Question>> PostQuestion(QuestionDTO questionDto)
         {
             var mapper = MapperConfig.InitializeAutomapper();
             Question question = mapper.Map<Question>(questionDto);
+            question.State = State.Created;
+            question.CreatedTime = DateTime.Now;
 
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
-
+       
             return  CreatedAtAction("GetQuestion", new { id = question.Id }, question);
         }
 
